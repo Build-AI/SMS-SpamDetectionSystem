@@ -58,10 +58,9 @@ def extract_ham(data_frame):
 
 # Setting up Training & Testing Data from our data frame 
 def create_data_model(data_frame):
-    train_test_split(data_frame["text"], data_frame["type"], test_size = 0.3, random_state = 37)
+    text_train, text_test, type_train, type_test = train_test_split(data_frame["text"], data_frame["type"], test_size = 0.3, random_state = 37)
 
     #testing if this is working
-    print("\n\nWhy hello there\n\n")
-    data_set = Training_data(data_frame["text"], data_frame["text"], data_frame["type"], data_frame["type"])
-    print("Done creating data model")
+    data_set = Training_data(text_train, text_test, type_train, type_test)
+
     print(data_set.training_txt, data_set.test_txt, data_set.training_type, data_set.test_type)
