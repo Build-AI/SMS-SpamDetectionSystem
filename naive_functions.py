@@ -20,6 +20,15 @@ class Training_data:
         self.training_type = training_type
         self.test_type = test_type
 
+    # def set_training_data(self):
+    #     self.training_txt = ''
+    #     self.test_txt = ''
+    #     self.training_type = ''
+    #     self.test_type = ''
+
+    # def get_training_data(self):
+    #     return self.training_txt, self.test_txt, self.training_type, self.test_type
+        
 def read_csv(spam_file):
     data_frame = pd.read_csv(spam_file, encoding = "ISO-8859-1")
     # data_frame['length'] = data_frame['text'].apply(len) # Adds Length of chars in 'text'
@@ -49,6 +58,10 @@ def extract_ham(data_frame):
 
 # Setting up Training & Testing Data from our data frame 
 def create_data_model(data_frame):
-    data_set = Training_data(train_test_split(data_frame["text"], data_frame["type"], test_size = 0.3, random_state = 37))
+    train_test_split(data_frame["text"], data_frame["type"], test_size = 0.3, random_state = 37)
+
+    #testing if this is working
+    print("\n\nWhy hello there\n\n")
+    data_set = Training_data(data_frame["text"], data_frame["text"], data_frame["type"], data_frame["type"])
     print("Done creating data model")
     print(data_set.training_txt, data_set.test_txt, data_set.training_type, data_set.test_type)
