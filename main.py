@@ -11,11 +11,11 @@ from sklearn.naive_bayes import MultinomialNB
 from sklearn.metrics import accuracy_score
 from sklearn.metrics import classification_report,confusion_matrix
 from sklearn.pipeline import Pipeline
-import naive_functions 
+import naive_functions as nf
 
 # Global variables
 pipeline = Pipeline([
-    ('bow', CountVectorizer(analyzer = naive_functions.process_text)),
+    ('bow', CountVectorizer(analyzer = nf.process_text)),
     ('tfidf', TfidfTransformer()),
     ('classifier', MultinomialNB()),
 ])
@@ -23,7 +23,10 @@ pipeline = Pipeline([
 spam_file = "spam.csv"
 
 def main():
-    data_frame = read_csv(spam_file)
+    data_frame = nf.read_csv(spam_file)
+    ham_data = nf.extract_ham(data_frame)
+    spam_data = nf.extract_spam(data_frame)
+    nf.create_data_model(data_frame)
 
     # pipeline.fit(text_train,type_train)
     # predictions = pipeline.predict(text_test)
