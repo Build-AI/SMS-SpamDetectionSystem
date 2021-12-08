@@ -27,6 +27,7 @@ def main():
     ham_data = nf.extract_ham(data_frame)
     spam_data = nf.extract_spam(data_frame)
     nf.create_data_model(data_frame)
+    print("Length of data frame: ", len(data_frame))
 
     # pipeline.fit(text_train,type_train)
     # predictions = pipeline.predict(text_test)
