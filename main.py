@@ -15,7 +15,7 @@ import naive_functions as nf
 
 # Global variables
 pipeline = Pipeline([
-    ('bow', CountVectorizer(analyzer = nf.process_text)),
+    ('bow', CountVectorizer(analyzer = nf.removes_punc)),
     ('tfidf', TfidfTransformer()),
     ('classifier', MultinomialNB()),
 ])
@@ -26,7 +26,8 @@ def main():
     data_frame = nf.read_csv(spam_file)
     ham_data = nf.extract_ham(data_frame)
     spam_data = nf.extract_spam(data_frame)
-    nf.create_data_model(data_frame)
+
+    data_set = nf.create_data_model(data_frame)
     print("Length of data frame: ", len(data_frame))
 
     # pipeline.fit(text_train,type_train)

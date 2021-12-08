@@ -1,10 +1,10 @@
-from nltk import data
 import numpy as np
 import pandas as pd 
 import string
 import re
 
 import nltk
+from nltk import data
 from nltk.corpus import stopwords 
 from nltk.stem.porter import PorterStemmer
 
@@ -60,13 +60,16 @@ def extract_ham(data_frame):
     return ham_msgs
 
 # Setting up Training & Testing Data from our data frame 
+# Returns our training data obj
 def create_data_model(data_frame):
-    train_test_split(data_frame["text"], data_frame["type"], test_size = 0.3, random_state = 37)
-
+    text_train, text_test, type_train, type_test = train_test_split(data_frame["text"], data_frame["type"], test_size = 0.3, random_state = 37)
+    
     # Calling & Initiating Training data constructor 
-    data_set = Training_data(data_frame["text"], data_frame["text"], data_frame["type"], data_frame["type"])
+    data_set = Training_data(text_train, text_test, type_train, type_test)
+    print(data_set.training_txt, data_set.test_txt, data_set.training_type, data_set.test_type)
+    return data_set
 
-def corpus(data_frame):
+def corpus(data_frame, self):
     corpus_list = []
 
     for i in range(0, len(data_frame)):
@@ -76,4 +79,7 @@ def corpus(data_frame):
         ps = PorterStemmer()
         review = [ps.stem(word) for word in review if not word in set(stopwords.words('english'))]
         review = ' '.join(review)
-        
+    
+    cv = CountVectorizer(max_features = 3000)
+    cv.fit(self.training_txt)
+
