@@ -1,10 +1,10 @@
-from nltk import data
 import numpy as np
 import pandas as pd 
 import string
 import re
 
 import nltk
+from nltk import data
 from nltk.corpus import stopwords 
 from nltk.stem.porter import PorterStemmer
 
@@ -17,20 +17,20 @@ from sklearn.pipeline import Pipeline
 from sklearn.model_selection import train_test_split
 
 class Training_data:
-    def __init__(self, training_txt, test_txt, training_type, test_type):
-        self.training_txt = training_txt
-        self.test_txt = test_txt
-        self.training_type = training_type
-        self.test_type = test_type
+    def __init__(self, x_train, x_test, y_train, y_test):
+        self.x_train = x_train
+        self.x_test = x_test
+        self.y_train = y_train
+        self.y_test = y_test
 
     def set_training_data(self):
-        self.training_txt = ''
-        self.test_txt = ''
-        self.training_type = ''
-        self.test_type = ''
+        self.x_train = ''
+        self.x_test = ''
+        self.y_train = ''
+        self.y_test = ''
 
     def get_training_data(self):
-        return self.training_txt, self.test_txt, self.training_type, self.test_type
+        return self.x_train, self.x_test, self.y_train, self.y_test
         
 def read_csv(spam_file):
     data_frame = pd.read_csv(spam_file, encoding = "ISO-8859-1")
@@ -60,13 +60,16 @@ def extract_ham(data_frame):
     return ham_msgs
 
 # Setting up Training & Testing Data from our data frame 
+# Returns our training data obj
 def create_data_model(data_frame):
-    train_test_split(data_frame["text"], data_frame["type"], test_size = 0.3, random_state = 37)
-
+    x_train, x_test, y_train, y_test = train_test_split(data_frame["text"], data_frame["type"], test_size = 0.3, random_state = 37)
+    
     # Calling & Initiating Training data constructor 
-    data_set = Training_data(data_frame["text"], data_frame["text"], data_frame["type"], data_frame["type"])
+    data_set = Training_data(x_train, x_test, y_train, y_test)
+    print(data_set.x_train, data_set.x_test, data_set.y_train, data_set.y_test)
+    return data_set
 
-def corpus(data_frame):
+def corpus(data_frame, training_data):
     corpus_list = []
 
     for i in range(0, len(data_frame)):
@@ -76,4 +79,10 @@ def corpus(data_frame):
         ps = PorterStemmer()
         review = [ps.stem(word) for word in review if not word in set(stopwords.words('english'))]
         review = ' '.join(review)
-        
+    
+    cv = CountVectorizer(max_features = 3000)
+    cv.fit(training_data.x_train)
+
+    x_train_cv = cv.transform(training_data.x_train)
+    x_test_cv = cv.transform(training_data.x_test)
+
