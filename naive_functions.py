@@ -41,7 +41,7 @@ def read_csv(spam_file):
 def removes_punc(msg):
     no_punc = [char for char in msg if char not in string.punctuation]
     no_punc = ''.join(no_punc)
-    return [word for word in no_punc.split() if word.lower() not in stopwords.words("english")]
+    return[word for word in no_punc.split() if word.lower() not in stopwords.words("english")]
 
 # Vectorizes text & counts total number of words
 def find_total_words(data_frame):
@@ -79,10 +79,20 @@ def corpus(data_frame, training_data):
         ps = PorterStemmer()
         review = [ps.stem(word) for word in review if not word in set(stopwords.words('english'))]
         review = ' '.join(review)
+        corpus_list.append(review)
     
     cv = CountVectorizer(max_features = 3000)
     cv.fit(training_data.x_train)
 
     x_train_cv = cv.transform(training_data.x_train)
+    print(x_train_cv)
     x_test_cv = cv.transform(training_data.x_test)
+    print(x_test_cv)
+
+    #naive bayes
+    mnb = MultinomialNB(alpha=0.5)
+    mnb.fit(x_train_cv, training_data.y_train)
+    y_mnb = mnb.predict(x_test_cv)
+    print('Naive bayes accuracy: ', accuracy_score(y_mnb, training_data.y_test))
+    print('Naive bayes confusion matrix: ', confusion_matrix(y_mnb, training_data.y_test))
 
