@@ -67,32 +67,39 @@ def create_data_model(data_frame):
     # Calling & Initiating Training data constructor 
     data_set = Training_data(x_train, x_test, y_train, y_test)
     print(data_set.x_train, data_set.x_test, data_set.y_train, data_set.y_test)
+    print('\n')
+    print('Xtrain: ', len(data_set.x_train))
+    print('Xtest: ', len(data_set.x_test))
+    print('Ytrain: ', len(data_set.y_train))
+    print('Ytest: ', len(data_set.y_test))
     return data_set
 
-def corpus(data_frame, training_data):
+def corpus(data_frame):
+    train_data = create_data_model(data_frame)
     corpus_list = []
 
-    for i in range(0, len(data_frame)):
-        review = re.sub('[^a-zA-Z]', ' ', data_frame['text'][i])
-        review = review.lower()
-        review = review.split()
+    # review = data_frame
+    for i in range(0, len(data_frame['text'])):
+        review = re.sub('[^a-zA-Z]', ' ', str(data_frame['text'][i]))
+        # review = review.split()
+        # review = review.lower()
         ps = PorterStemmer()
         review = [ps.stem(word) for word in review if not word in set(stopwords.words('english'))]
         review = ' '.join(review)
         corpus_list.append(review)
     
     cv = CountVectorizer(max_features = 3000)
-    cv.fit(training_data.x_train)
+    cv.fit(train_data.x_train)
 
-    x_train_cv = cv.transform(training_data.x_train)
+    x_train_cv = cv.transform(train_data.x_train)
     print(x_train_cv)
-    x_test_cv = cv.transform(training_data.x_test)
+    x_test_cv = cv.transform(train_data.x_test)
     print(x_test_cv)
 
     #naive bayes
     mnb = MultinomialNB(alpha=0.5)
-    mnb.fit(x_train_cv, training_data.y_train)
+    mnb.fit(x_train_cv, train_data.y_train)
     y_mnb = mnb.predict(x_test_cv)
-    print('Naive bayes accuracy: ', accuracy_score(y_mnb, training_data.y_test))
-    print('Naive bayes confusion matrix: ', confusion_matrix(y_mnb, training_data.y_test))
+    print('Naive bayes accuracy: ', accuracy_score(y_mnb, train_data.y_test))
+    print('Naive bayes confusion matrix: ', confusion_matrix(y_mnb, train_data.y_test))
 

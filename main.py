@@ -57,14 +57,15 @@ def main():
     print(ham_data)
     print(ham_data.describe())
 
-    train_test = nf.create_data_model(clean_data)
-    #printing lengths
-    print('\n')
-    print('Xtrain: ', len(train_test.x_train))
-    print('Xtest: ', len(train_test.x_test))
-    print('Ytrain: ', len(train_test.y_train))
-    print('Ytest: ', len(train_test.y_test))
+    #not needed
+    # train_test = nf.create_data_model(clean_data)
+    # #printing lengths
+    # print('\n')
+    # print('Xtrain: ', len(train_test.x_train))
+    # print('Xtest: ', len(train_test.x_test))
+    # print('Ytrain: ', len(train_test.y_train))
+    # print('Ytest: ', len(train_test.y_test))
 
     #calling corpus
-    nf.corpus(clean_data, train_test)
+    nf.corpus(clean_data)
 main()
