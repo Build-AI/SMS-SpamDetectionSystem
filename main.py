@@ -1,38 +1,31 @@
-from nltk import data
-import numpy as np
-import pandas as pd 
-import string
-import nltk
-from nltk.corpus import stopwords
-from pandas.io.parsers import read_csv 
+import pandas as pd
+from scipy.sparse import data
 from sklearn.feature_extraction.text import CountVectorizer
-from sklearn.feature_extraction.text import TfidfTransformer
 from sklearn.naive_bayes import MultinomialNB
-from sklearn.metrics import accuracy_score
-from sklearn.metrics import classification_report,confusion_matrix
-from sklearn.pipeline import Pipeline
-import naive_functions as nf
-
-# Global variables
-pipeline = Pipeline([
-    ('bow', CountVectorizer(analyzer = nf.removes_punc)),
-    ('tfidf', TfidfTransformer()),
-    ('classifier', MultinomialNB()),
-])
-
-spam_file = "spam.csv"
+from sklearn.model_selection import train_test_split
 
 def main():
-    data_frame = nf.read_csv(spam_file)
-    ham_data = nf.extract_ham(data_frame)
-    spam_data = nf.extract_spam(data_frame)
+    data_file = pd.read_csv('spam.csv', encoding = "ISO-8859-1")
+    data_file['label'] = data_file['type'].map({'ham': 'HAM', 'spam': 'SPAM'})
 
-    data_set = nf.create_data_model(data_frame)
-    print("Length of data frame: ", len(data_frame))
+    file_text = data_file['text']
+    file_label = data_file['label']
 
-    # pipeline.fit(text_train,type_train)
-    # predictions = pipeline.predict(text_test)
-    # print('Naive Base Accuracy_score: ',accuracy_score(type_test,predictions))
-    # print(classification_report(predictions,type_test))
+    cv = CountVectorizer()
+    file_text = cv.fit_transform(file_text)
+    x_train, x_test, y_train, y_test = train_test_split(file_text, file_label, test_size=0.3, random_state=42)
+
+    #naive bayes
+    clf = MultinomialNB()
+    clf.fit(x_train, y_train)
+    clf.score(x_test, y_test)
+
+    message = ''
+    while not (message == 'quit'):
+        message = input("Enter a message: ")
+        message_data = [message]
+        vect = cv.transform(message_data).toarray()
+        predict_message = clf.predict(vect)
+        print(predict_message)
 
 main()
