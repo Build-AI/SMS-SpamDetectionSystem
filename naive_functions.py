@@ -1,19 +1,8 @@
-import numpy as np
 import pandas as pd 
 import string
-import re
-
-import nltk
-from nltk import data
 from nltk.corpus import stopwords 
-from nltk.stem.porter import PorterStemmer
-
 from sklearn.feature_extraction.text import CountVectorizer
-from sklearn.feature_extraction.text import TfidfTransformer
 from sklearn.naive_bayes import MultinomialNB
-from sklearn.metrics import accuracy_score
-from sklearn.metrics import classification_report,confusion_matrix
-from sklearn.pipeline import Pipeline
 from sklearn.model_selection import train_test_split
 
 class Training_data:
@@ -31,11 +20,12 @@ class Training_data:
 
     def get_training_data(self):
         return self.x_train, self.x_test, self.y_train, self.y_test
-        
-def read_csv(spam_file):
-    data_frame = pd.read_csv(spam_file, encoding = "ISO-8859-1")
-    # data_frame['length'] = data_frame['text'].apply(len) # Adds Length of chars in 'text'
-    return data_frame
+
+# Reads csv files & single-byte encodes data
+def read_file():
+    data_file = pd.read_csv('spam.csv', encoding = "ISO-8859-1")
+    data_file['label'] = data_file['type'].map({'ham': 'HAM', 'spam': 'SPAM'})
+    return data_file
 
 # Removes Punctuation and English stop words in text column of csv file
 def removes_punc(msg):
@@ -59,7 +49,52 @@ def extract_ham(data_frame):
     ham_msgs = data_frame[data_frame["type"] == "ham"]
     return ham_msgs
 
-# Setting up Training & Testing Data from our data frame 
+# Displays Menu & Verifies User-Input
+def display_menu():
+    menu_input = input("\
+    \t-------- Menu --------\n\
+    1. View msgs classified as ham\n\
+    2. View msgs classified as spam\n\
+    3. Input a message\n\
+    4. Quit\n\
+    Please input a menu choice(1-4)\n")
+    try:
+        int(menu_input)
+    except ValueError:
+        print("\n!!! Input must be a number between 1-4 !!!\n")
+        menu_input = display_menu()
+    return int(menu_input)
+
+# Executes Menu Actions from User-Input
+# 1 = View Ham, #2 = View Spam, #3 = Input msg, #4 = Quit
+def execute_menu(m_input, data_file, cv, clf):
+    while m_input != 4:
+        if m_input == 1:
+            print(extract_ham(data_file))
+            print("\nNote: Only the head & tail of our data(5 indexes) will be displayed\n")
+            m_input = display_menu()
+        elif m_input == 2:
+            print(extract_spam(data_file))
+            print("\nNote: Only the head & tail of our data(5 indexes) will be displayed\n")
+            m_input = display_menu()
+        elif m_input == 3:
+            message = input("Type 'QUIT' to return back to main menu\nEnter a message: ")
+            message_data = [message]
+
+            if message == 'QUIT':
+                m_input = display_menu()
+            else:
+                vect = cv.transform(message_data).toarray()
+                predict_message = clf.predict(vect)
+                print(predict_message)
+
+        elif m_input == 4:
+            exit(1)
+        else:
+            m_input = display_menu()
+
+
+# Setting up Training & Testing Data from our data frame
 # Returns our training data obj
 def create_data_model(data_frame):
     x_train, x_test, y_train, y_test = train_test_split(data_frame["text"], data_frame["type"], test_size = 0.3, random_state = 37)
@@ -73,33 +108,4 @@ def create_data_model(data_frame):
     print('Ytrain: ', len(data_set.y_train))
     print('Ytest: ', len(data_set.y_test))
     return data_set
-
-def corpus(data_frame):
-    train_data = create_data_model(data_frame)
-    corpus_list = []
-
-    # review = data_frame
-    for i in range(0, len(data_frame['text'])):
-        review = re.sub('[^a-zA-Z]', ' ', str(data_frame['text'][i]))
-        # review = review.split()
-        # review = review.lower()
-        ps = PorterStemmer()
-        review = [ps.stem(word) for word in review if not word in set(stopwords.words('english'))]
-        review = ' '.join(review)
-        corpus_list.append(review)
-    
-    cv = CountVectorizer(max_features = 3000)
-    cv.fit(train_data.x_train)
-
-    x_train_cv = cv.transform(train_data.x_train)
-    print(x_train_cv)
-    x_test_cv = cv.transform(train_data.x_test)
-    print(x_test_cv)
-
-    #naive bayes
-    mnb = MultinomialNB(alpha=0.5)
-    mnb.fit(x_train_cv, train_data.y_train)
-    y_mnb = mnb.predict(x_test_cv)
-    print('Naive bayes accuracy: ', accuracy_score(y_mnb, train_data.y_test))
-    print('Naive bayes confusion matrix: ', confusion_matrix(y_mnb, train_data.y_test))
 
